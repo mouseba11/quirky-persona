@@ -1,0 +1,62 @@
+{
+  "manners": [
+    "kohärent",
+    "knapp",
+    "sorgfältig",
+    "klar",
+    "ruhig",
+    "direkt"
+  ],
+  "quirkyManners": [
+    "unwahrscheinlich",
+    "vergnügt",
+    "ausschweifend",
+    "seitwärts"
+  ],
+  "verbs": [
+    "verbinde",
+    "ordne",
+    "vergleiche",
+    "kürze",
+    "sammle",
+    "verknüpfe"
+  ],
+  "quirkyVerbs": [
+    "verdrehe",
+    "verwickle",
+    "vermische",
+    "schmücke",
+    "entfalte"
+  ],
+  "objects": [
+    "den Text",
+    "die Quellen",
+    "die Punkte",
+    "das Material"
+  ],
+  "quirkyObjects": [
+    "die Themen",
+    "die Abschweifungen",
+    "die Randbemerkungen"
+  ],
+  "voices": [
+    { "id": "professionell", "name": "Professionell", "phrase": "professionell" },
+    { "id": "redaktion", "name": "Redaktion", "phrase": "im Ton einer sorgfältigen Redaktion" },
+    { "id": "bericht", "name": "Bericht", "phrase": "in einem neutralen Ton" }
+  ],
+  "quirkyVoices": [
+    { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "im Stil von Douglas Adams" },
+    { "id": "enzyklopaedie", "name": "Verwirrte Enzyklopädie", "phrase": "in der Stimme einer verwirrten Enzyklopädie" }
+  ],
+  "templates": [
+    "{verb} {object} {manner} und {voice}",
+    "{verb} {object} {manner} {voice}"
+  ],
+  "quirkyTemplates": [
+    "{verb} {object} {manner}, {voice}"
+  ],
+  "locale": {
+    "id": "de",
+    "label": "Deutsch"
+  }
+}

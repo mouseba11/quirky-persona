@@ -1,0 +1,49 @@
+{
+  "name": "@mouseba11/quirky-persona",
+  "version": "1.0.0",
+  "description": "Turn a little text into a persona and a writing instruction. Local, deterministic, zero dependencies.",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "quirky-persona.config.json",
+    "langs/en.json",
+    "langs/de.json",
+    "langs/es.json",
+    "docs",
+    "AGENTS.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node test.js",
+    "start": "node example/server.js",
+    "prepublishOnly": "npm test",
+    "pack:check": "npm pack --dry-run",
+    "publish:npm": "npm publish --access public",
+    "publish:github": "npm publish --registry=https://npm.pkg.github.com"
+  },
+  "keywords": [
+    "persona",
+    "voice",
+    "writing",
+    "instruction",
+    "style",
+    "prompt"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mouseba11/quirky-persona.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mouseba11/quirky-persona/issues"
+  },
+  "homepage": "https://github.com/mouseba11/quirky-persona#readme",
+  "author": "mouseba11",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

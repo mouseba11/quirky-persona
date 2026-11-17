@@ -1,0 +1,62 @@
+{
+  "manners": [
+    "con coherencia",
+    "de forma sucinta",
+    "con cuidado",
+    "con claridad",
+    "en breve",
+    "directamente"
+  ],
+  "quirkyManners": [
+    "de forma improbable",
+    "con alegría",
+    "de lado",
+    "con cariño"
+  ],
+  "verbs": [
+    "combina",
+    "resume",
+    "ordena",
+    "compara",
+    "destila",
+    "reúne"
+  ],
+  "quirkyVerbs": [
+    "descombobula",
+    "yuxtapón",
+    "enreda",
+    "borda",
+    "despliega"
+  ],
+  "objects": [
+    "el texto",
+    "las fuentes",
+    "los puntos",
+    "el material"
+  ],
+  "quirkyObjects": [
+    "los temas",
+    "las digresiones",
+    "las notas al margen"
+  ],
+  "voices": [
+    { "id": "profesional", "name": "Profesional", "phrase": "profesionalmente" },
+    { "id": "editor", "name": "Editor", "phrase": "a la manera de un editor cuidadoso" },
+    { "id": "reportero", "name": "Reportero", "phrase": "en un tono neutro" }
+  ],
+  "quirkyVoices": [
+    { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "al estilo de Douglas Adams" },
+    { "id": "enciclopedia", "name": "Enciclopedia perpleja", "phrase": "con la voz de una enciclopedia perpleja" }
+  ],
+  "templates": [
+    "{verb} {object} {manner} y {voice}",
+    "{verb} {object} {manner} {voice}"
+  ],
+  "quirkyTemplates": [
+    "{verb} {object} {manner}, {voice}"
+  ],
+  "locale": {
+    "id": "es",
+    "label": "Español"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "lang": "en",
+  "maxWords": 256,
+  "quirks": false,
+  "quirkFactor": 0.7
+}

@@ -1,0 +1,67 @@
+{
+  "maxWords": [
+    "How many words of the text are allowed to change the result.",
+    "Only the first this many words are part of the seed. The text never appears in the instruction, and it does not pick the manner, the verb, the object, or the voice. A different opening can still land on a different row, because the seed changes.",
+    "Lower it and only the opening steers the result. Set it to 0 and the text is ignored. The seed, when you pass one, still counts."
+  ],
+  "quirks": [
+    "Turns quirks mode on or off.",
+    "Off, each property is picked from its plain list. On, there is a quirk-factor chance that the quirky list is added to that pool before the pick.",
+    "The checkbox on the tester overrides this for that one run."
+  ],
+  "quirkFactor": [
+    "When quirks mode is on, the chance, from 0 to 1, of a quirky result instead of a plain one.",
+    "That chance adds the quirky manners, verbs, objects, voices, and templates to the plain pools. At 1, the quirky rows are always added. At 0, quirks mode can be on and every instruction still stays plain.",
+    "It does nothing while quirks mode is off. The factor slider on the tester overrides this for that one run."
+  ],
+  "manners": [
+    "The adverbs a plain instruction can use, in {manner}.",
+    "The seed picks one entry. It never invents a word that is not here. Order matters: the same input and seed always lands on the same place in the list.",
+    "Add a word and it becomes a possible choice. Remove one and plain instructions stop using it."
+  ],
+  "quirkyManners": [
+    "Extra adverbs added to the {manner} pool when the quirky chance hits.",
+    "They are written the same way as the plain manners. A phrase is allowed.",
+    "With quirks off, or when the roll stays plain, these entries are not used."
+  ],
+  "verbs": [
+    "The verbs a plain instruction can use, in {verb}.",
+    "Write the form the sentence needs. English defaults are bare verbs (combine, summarise), because the template supplies the rest.",
+    "Order matters, for the same reason it matters on every list."
+  ],
+  "quirkyVerbs": [
+    "Extra verbs added to the {verb} pool when the quirky chance hits.",
+    "The English defaults are the playful ones, such as discombobulate and juxtapose.",
+    "With quirks off, or when the roll stays plain, these entries are not used."
+  ],
+  "objects": [
+    "The thing the verb acts on, in {object}.",
+    "Each entry is a short noun phrase, such as the text or the sources. The template does not add the or a for you.",
+    "Order matters."
+  ],
+  "quirkyObjects": [
+    "Extra objects added to the {object} pool when the quirky chance hits.",
+    "The English defaults include the themes and the digressions.",
+    "With quirks off, or when the roll stays plain, these entries are not used."
+  ],
+  "voices": [
+    "The plain personas.",
+    "Each row has an id, a name, and a phrase. The name is the persona the call returns. The phrase is what {voice} writes into the instruction, such as professionally or in the manner of a careful editor.",
+    "A row with an empty phrase is left out. Order matters."
+  ],
+  "quirkyVoices": [
+    "Extra personas added to the voice pool when the quirky chance hits.",
+    "The English defaults include Douglas Adams. The name is still the persona, and the phrase is still what the instruction says.",
+    "With quirks off, or when the roll stays plain, these rows are not used."
+  ],
+  "templates": [
+    "The plain instruction shapes.",
+    "A template is a sentence with gaps: {manner}, {verb}, {object}, {voice}, and {persona}. The words around the gaps, including and, are written here.",
+    "At least one template is required. Order matters."
+  ],
+  "quirkyTemplates": [
+    "Extra shapes added to the template pool when the quirky chance hits.",
+    "Use them for a comma, a different order, or a frame you only want on a quirky roll.",
+    "With quirks off, or when the roll stays plain, these shapes are not used. The plain templates are still in the pool either way."
+  ]
+}

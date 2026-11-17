@@ -1,0 +1,74 @@
+{
+  "manners": [
+    "coherently",
+    "succinctly",
+    "carefully",
+    "briefly",
+    "clearly",
+    "quietly",
+    "directly",
+    "plainly"
+  ],
+  "quirkyManners": [
+    "improbably",
+    "cheerfully",
+    "sideways",
+    "fondly",
+    "digressively"
+  ],
+  "verbs": [
+    "combine",
+    "summarise",
+    "arrange",
+    "compare",
+    "distil",
+    "connect",
+    "present",
+    "gather"
+  ],
+  "quirkyVerbs": [
+    "discombobulate",
+    "juxtapose",
+    "entangle",
+    "embroider",
+    "unfold",
+    "misplace"
+  ],
+  "objects": [
+    "the text",
+    "the sources",
+    "the points",
+    "the material",
+    "the paragraphs"
+  ],
+  "quirkyObjects": [
+    "the themes",
+    "the digressions",
+    "the odds and ends",
+    "the asides"
+  ],
+  "voices": [
+    { "id": "professional", "name": "Professional", "phrase": "professionally" },
+    { "id": "editor", "name": "Editor", "phrase": "in the manner of a careful editor" },
+    { "id": "reporter", "name": "Reporter", "phrase": "in a neutral tone" },
+    { "id": "guide", "name": "Guide", "phrase": "as a clear guide" }
+  ],
+  "quirkyVoices": [
+    { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "in the style of Douglas Adams" },
+    { "id": "wodehouse", "name": "P.G. Wodehouse", "phrase": "in the style of P.G. Wodehouse" },
+    { "id": "encyclopedia", "name": "Bemused encyclopedia", "phrase": "in the voice of a bemused encyclopedia" },
+    { "id": "footnote", "name": "Footnote", "phrase": "as a footnote that got ideas" }
+  ],
+  "templates": [
+    "{manner} {verb} {object} {voice}",
+    "{verb} {object} {manner} and {voice}"
+  ],
+  "quirkyTemplates": [
+    "{manner} {verb} {object}, {voice}",
+    "{verb} {object} {manner}, {voice}"
+  ],
+  "locale": {
+    "id": "en",
+    "label": "English"
+  }
+}
