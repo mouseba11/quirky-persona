@@ -1,7 +1,7 @@
 {
   "name": "@mouseba11/quirky-persona",
-  "version": "1.0.0",
-  "description": "Turn a little text into a persona and a writing instruction. Local, deterministic, zero dependencies.",
+  "version": "2.0.0",
+  "description": "Turn a title into a persona and a writing instruction. Local, deterministic, zero dependencies.",
   "main": "index.js",
   "files": [
     "index.js",

@@ -1,6 +1,9 @@
 {
   "lang": "en",
   "maxWords": 256,
+  "minScore": 0,
+  "patternSpread": 0.2,
+  "sharedFactor": 0.25,
   "quirks": false,
   "quirkFactor": 0.7
 }

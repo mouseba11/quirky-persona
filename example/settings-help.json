@@ -1,8 +1,23 @@
 {
   "maxWords": [
-    "How many words of the text are allowed to change the result.",
-    "Only the first this many words are part of the seed. The text never appears in the instruction, and it does not pick the manner, the verb, the object, or the voice. A different opening can still land on a different row, because the seed changes.",
-    "Lower it and only the opening steers the result. Set it to 0 and the text is ignored. The seed, when you pass one, still counts."
+    "How many words of the title are allowed to change the result.",
+    "Only the first this many words are scored against the patterns, and only those words enter the seed. The title is not copied into the instruction.",
+    "Set it to 0 and every title falls back to a generic pattern. The seed, when you pass one, still counts."
+  ],
+  "minScore": [
+    "How strong a match has to be before a pattern can win.",
+    "A pattern scores above this, or it is ignored. If none do, a pattern with no triggers is used instead. That is the fallback for a title that has been rewritten past recognition.",
+    "The default is 0, so any overlap with a trigger is enough to leave the fallback."
+  ],
+  "patternSpread": [
+    "How close to the best score another pattern must be to stay in the running.",
+    "1 means only the top score can win. 0.2, the default, lets a near miss share the win, with the stronger score winning more often. The seed makes the pick.",
+    "Lower it and more patterns are allowed to answer the same title."
+  ],
+  "sharedFactor": [
+    "The chance, from 0 to 1, of borrowing a sentence shape from the shared templates.",
+    "The matched pattern still supplies the manner, the verb, the object, and the voice. Only the arrangement of those gaps changes.",
+    "0 keeps every instruction on the pattern's own templates."
   ],
   "quirks": [
     "Turns quirks mode on or off.",
@@ -45,23 +60,28 @@
     "With quirks off, or when the roll stays plain, these entries are not used."
   ],
   "voices": [
-    "The plain personas.",
-    "Each row has an id, a name, and a phrase. The name is the persona the call returns. The phrase is what {voice} writes into the instruction, such as professionally or in the manner of a careful editor.",
-    "A row with an empty phrase is left out. Order matters."
+    "The plain actors.",
+    "Each row has an id, a name, and a phrase. The name is the persona the call returns. The phrase is what {voice} writes into the instruction, such as professionally or as a historian.",
+    "A row with an empty phrase is left out. Order matters. A pattern can bring its own actors, and those replace this list for that pattern."
   ],
   "quirkyVoices": [
-    "Extra personas added to the voice pool when the quirky chance hits.",
-    "The English defaults include Douglas Adams. The name is still the persona, and the phrase is still what the instruction says.",
-    "With quirks off, or when the roll stays plain, these rows are not used."
+    "Extra actors added to the voice pool when the quirky chance hits.",
+    "The English defaults include Douglas Adams, a beat poet, Hunter S. Thompson, and styles such as a hip hop song or an instruction manual. The name is still the persona, and the phrase is still what the instruction says.",
+    "With quirks off, or when the roll stays plain, these rows are not used. A pattern's own quirky actors are added as well when that pattern is chosen."
   ],
   "templates": [
-    "The plain instruction shapes.",
-    "A template is a sentence with gaps: {manner}, {verb}, {object}, {voice}, and {persona}. The words around the gaps, including and, are written here.",
-    "At least one template is required. Order matters."
+    "The shared sentence shapes. A matched pattern uses its own templates most of the time.",
+    "Shared factor is the chance of using one of these shapes instead. The pattern's words are still filled in.",
+    "These shapes are also what a one-entry config uses when you pass templates and do not pass patterns."
   ],
   "quirkyTemplates": [
     "Extra shapes added to the template pool when the quirky chance hits.",
     "Use them for a comma, a different order, or a frame you only want on a quirky roll.",
     "With quirks off, or when the roll stays plain, these shapes are not used. The plain templates are still in the pool either way."
+  ],
+  "numbers": [
+    "The strings slugger can write for {n}.",
+    "The English defaults are 2, 3, 5, two, three, five, and the quirky 42. A title that contains one of them selects a pattern marked Number. 101 is not in this list, so Lemurs 101 stays with essentials.",
+    "Add or remove a row to change which titles count as a list. A word is matched the same way as a trigger, so three and five still meet."
   ]
 }

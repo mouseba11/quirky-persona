@@ -46,7 +46,15 @@
   ],
   "quirkyVoices": [
     { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "al estilo de Douglas Adams" },
-    { "id": "enciclopedia", "name": "Enciclopedia perpleja", "phrase": "con la voz de una enciclopedia perpleja" }
+    { "id": "enciclopedia", "name": "Enciclopedia perpleja", "phrase": "con la voz de una enciclopedia perpleja" },
+    { "id": "beat-poet", "name": "Poeta beat", "phrase": "al estilo de un poeta beat" },
+    { "id": "hunter-s-thompson", "name": "Hunter S. Thompson", "phrase": "al estilo de Hunter S. Thompson" },
+    { "id": "theatre-critic", "name": "Crítico de teatro", "phrase": "como un crítico de teatro" },
+    { "id": "hip-hop", "name": "Hip hop", "phrase": "como una canción de hip hop" },
+    { "id": "instruction-manual", "name": "Manual de instrucciones", "phrase": "como un manual de instrucciones" },
+    { "id": "shipping-forecast", "name": "Parte marítimo", "phrase": "al estilo del parte meteorológico" },
+    { "id": "nature-documentary", "name": "Documental de naturaleza", "phrase": "como un documental de naturaleza" },
+    { "id": "cookbook", "name": "Libro de cocina", "phrase": "como un libro de cocina" }
   ],
   "templates": [
     "{verb} {object} {manner} y {voice}",
@@ -54,6 +62,103 @@
   ],
   "quirkyTemplates": [
     "{verb} {object} {manner}, {voice}"
+  ],
+  "numbers": ["2", "3", "5", "dos", "tres", "cinco", "42"],
+  "stopWords": [
+    "el", "la", "los", "las", "de", "del", "un", "una", "y", "en",
+    "con", "por", "para", "que", "es", "se", "lo", "al", "unos", "unas"
+  ],
+  "patterns": [
+    {
+      "id": "history",
+      "triggers": ["historia", "años", "origen"],
+      "verbs": ["sigue", "cuenta", "ordena"],
+      "objects": ["la historia que nombra este título", "los años que abarca este título"],
+      "voices": [
+        { "id": "historiador", "name": "Historiador", "phrase": "como historiador" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "recipe",
+      "triggers": ["receta", "preparar"],
+      "verbs": ["expón", "ordena"],
+      "objects": ["el método que nombra este título"],
+      "voices": [
+        { "id": "cocinero", "name": "Cocinero", "phrase": "como quien ya lo ha preparado" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "review",
+      "triggers": ["reseña", "vale", "veredicto"],
+      "verbs": ["juzga", "sopesa"],
+      "objects": ["el veredicto que pide este título"],
+      "voices": [
+        { "id": "critico", "name": "Crítico", "phrase": "como un crítico llano" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "howto",
+      "triggers": ["dominar", "empezar", "guía"],
+      "verbs": ["enseña", "expón"],
+      "objects": ["los pasos que implica este título"],
+      "voices": [
+        { "id": "instructor", "name": "Instructor", "phrase": "como un instructor paciente" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "list",
+      "numbered": true,
+      "triggers": ["mejores", "top"],
+      "verbs": ["ordena", "reúne"],
+      "objects": ["los elementos que alinea este título"],
+      "voices": [
+        { "id": "editor-lista", "name": "Editor de listas", "phrase": "como editor de una lista" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "connection",
+      "triggers": ["entre"],
+      "verbs": ["une", "relaciona"],
+      "objects": ["el vínculo que traza este título"],
+      "voices": [
+        { "id": "ensayista", "name": "Ensayista", "phrase": "como quien busca el vínculo" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "comparison",
+      "triggers": ["comparados", "comparación"],
+      "verbs": ["compara", "sopesa"],
+      "objects": ["los dos lados que nombra este título"],
+      "voices": [
+        { "id": "juez", "name": "Juez", "phrase": "como un juez imparcial" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "news",
+      "triggers": ["novedades"],
+      "verbs": ["informa", "anota"],
+      "objects": ["lo que este título da por nuevo"],
+      "voices": [
+        { "id": "reportero-noticia", "name": "Reportero", "phrase": "en un informe neutro" }
+      ],
+      "templates": ["{verb} {object} {manner} y {voice}"]
+    },
+    {
+      "id": "default",
+      "triggers": [],
+      "templates": [
+        "{verb} {object} {manner} y {voice}",
+        "{verb} {object} {manner} {voice}"
+      ],
+      "quirkyTemplates": ["{verb} {object} {manner}, {voice}"]
+    }
   ],
   "locale": {
     "id": "es",

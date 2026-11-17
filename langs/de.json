@@ -46,7 +46,15 @@
   ],
   "quirkyVoices": [
     { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "im Stil von Douglas Adams" },
-    { "id": "enzyklopaedie", "name": "Verwirrte Enzyklopädie", "phrase": "in der Stimme einer verwirrten Enzyklopädie" }
+    { "id": "enzyklopaedie", "name": "Verwirrte Enzyklopädie", "phrase": "in der Stimme einer verwirrten Enzyklopädie" },
+    { "id": "beat-poet", "name": "Beat-Poet", "phrase": "im Stil eines Beat-Poeten" },
+    { "id": "hunter-s-thompson", "name": "Hunter S. Thompson", "phrase": "im Stil von Hunter S. Thompson" },
+    { "id": "theatre-critic", "name": "Theaterkritiker", "phrase": "als Theaterkritiker" },
+    { "id": "hip-hop", "name": "Hip-Hop", "phrase": "als Hip-Hop-Song" },
+    { "id": "instruction-manual", "name": "Bedienungsanleitung", "phrase": "wie eine Bedienungsanleitung" },
+    { "id": "shipping-forecast", "name": "Seewetterbericht", "phrase": "im Stil des Seewetterberichts" },
+    { "id": "nature-documentary", "name": "Naturdokumentation", "phrase": "wie eine Naturdokumentation" },
+    { "id": "cookbook", "name": "Kochbuch", "phrase": "wie ein Kochbuch" }
   ],
   "templates": [
     "{verb} {object} {manner} und {voice}",
@@ -54,6 +62,104 @@
   ],
   "quirkyTemplates": [
     "{verb} {object} {manner}, {voice}"
+  ],
+  "numbers": ["2", "3", "5", "zwei", "drei", "fünf", "42"],
+  "stopWords": [
+    "der", "die", "das", "den", "dem", "des", "ein", "eine", "einer", "eines",
+    "und", "von", "zu", "zum", "zur", "im", "in", "mit", "auf", "für",
+    "ist", "wie", "man", "es", "sich", "was"
+  ],
+  "patterns": [
+    {
+      "id": "history",
+      "triggers": ["geschichte", "jahre", "ursprung"],
+      "verbs": ["verfolge", "erzähle", "ordne"],
+      "objects": ["die Geschichte in diesem Titel", "die Jahre in diesem Titel"],
+      "voices": [
+        { "id": "historiker", "name": "Historiker", "phrase": "als Historiker" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "recipe",
+      "triggers": ["rezept", "zubereiten", "zubereitet"],
+      "verbs": ["schreibe", "ordne"],
+      "objects": ["das Rezept in diesem Titel"],
+      "voices": [
+        { "id": "koch", "name": "Koch", "phrase": "als Koch" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "review",
+      "triggers": ["test", "lohnt", "urteil"],
+      "verbs": ["beurteile", "prüfe"],
+      "objects": ["das Urteil in diesem Titel"],
+      "voices": [
+        { "id": "kritiker", "name": "Kritiker", "phrase": "als Kritiker" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "howto",
+      "triggers": ["einstieg", "meistert", "anleitung"],
+      "verbs": ["erkläre", "ordne"],
+      "objects": ["die Schritte in diesem Titel"],
+      "voices": [
+        { "id": "anleitung", "name": "Anleitung", "phrase": "als geduldige Anleitung" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "list",
+      "numbered": true,
+      "triggers": ["besten", "top"],
+      "verbs": ["ordne", "reihe"],
+      "objects": ["die Einträge in diesem Titel"],
+      "voices": [
+        { "id": "redakteur", "name": "Redakteur", "phrase": "als Redakteur einer Liste" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "connection",
+      "triggers": ["zwischen"],
+      "verbs": ["verknüpfe", "verbinde"],
+      "objects": ["die Verbindung in diesem Titel"],
+      "voices": [
+        { "id": "verbindung", "name": "Verbindung", "phrase": "als jemand, der eine Verbindung sucht" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "comparison",
+      "triggers": ["vergleich", "besser"],
+      "verbs": ["vergleiche", "wäge"],
+      "objects": ["die beiden Seiten in diesem Titel"],
+      "voices": [
+        { "id": "vergleicher", "name": "Vergleich", "phrase": "als fairer Vergleich" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "news",
+      "triggers": ["neuigkeiten", "update"],
+      "verbs": ["berichte", "notiere"],
+      "objects": ["was dieser Titel als neu nennt"],
+      "voices": [
+        { "id": "reporter", "name": "Reporter", "phrase": "in einem neutralen Bericht" }
+      ],
+      "templates": ["{verb} {object} {manner} und {voice}"]
+    },
+    {
+      "id": "default",
+      "triggers": [],
+      "templates": [
+        "{verb} {object} {manner} und {voice}",
+        "{verb} {object} {manner} {voice}"
+      ],
+      "quirkyTemplates": ["{verb} {object} {manner}, {voice}"]
+    }
   ],
   "locale": {
     "id": "de",

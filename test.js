@@ -240,6 +240,101 @@ assert.throws(() => quirkyPersona('', { config: { templates: [] } }), /config\.t
 assert.throws(() => quirkyPersona('', { config: { templates: ['  '] } }), /config\.templates/);
 assert.doesNotThrow(() => quirkyPersona(''));
 
+// ---------- title matching ----------
+
+const matchConfig = {
+  patternSpread: 1,
+  sharedFactor: 0,
+  minScore: 0,
+  stopWords: ['the', 'of', 'a', 'an', 'and', 'through'],
+  patterns: [
+    {
+      id: 'history',
+      triggers: ['history', 'years'],
+      templates: ['{persona}'],
+      voices: [{ id: 'historian', name: 'Historian', phrase: 'as a historian' }],
+    },
+    {
+      id: 'comparison',
+      triggers: ['compare', 'comparison'],
+      templates: ['{persona}'],
+      voices: [{ id: 'judge', name: 'Judge', phrase: 'as a judge' }],
+    },
+    {
+      id: 'default',
+      triggers: [],
+      templates: ['{persona}'],
+      voices: [{ id: 'editor', name: 'Editor', phrase: 'as an editor' }],
+    },
+  ],
+  voices: [{ id: 'unused', name: 'Unused', phrase: 'unused' }],
+};
+
+assert.strictEqual(explain('The History of Lemurs', { config: matchConfig }).pattern, 'history');
+assert.strictEqual(explain('The History of Lemurs', { config: matchConfig }).persona, 'Historian');
+assert.strictEqual(explain('The History of Lemurs', { config: matchConfig }).usedFallback, false);
+assert.ok(explain('The History of Lemurs', { config: matchConfig }).score > 0);
+assert.strictEqual(explain('How Lemurs and Geometry Compare', { config: matchConfig }).pattern, 'comparison');
+assert.strictEqual(explain('Lemurs Compared', { config: matchConfig }).pattern, 'comparison');
+assert.strictEqual(explain('A short account through the years', { config: matchConfig }).pattern, 'history');
+const rewritten = explain('Lemurs are wonderful', { config: matchConfig });
+assert.strictEqual(rewritten.usedFallback, true);
+assert.strictEqual(rewritten.pattern, 'default');
+assert.strictEqual(rewritten.score, 0);
+assert.strictEqual(rewritten.persona, 'Editor');
+
+// A custom pattern set does not keep the pack's shared templates unless they are passed.
+const onlyHistory = explain('The History of Lemurs', {
+  config: {
+    sharedFactor: 1,
+    patterns: [{
+      id: 'history',
+      triggers: ['history'],
+      templates: ['pattern {persona}'],
+      voices: [{ id: 'historian', name: 'Historian', phrase: 'as a historian' }],
+    }],
+  },
+});
+assert.strictEqual(onlyHistory.template, 'pattern {persona}');
+assert.strictEqual(onlyHistory.sharedTemplate, false);
+assert.strictEqual(onlyHistory.persona, 'Historian');
+
+// Passing templates beside patterns makes those templates the shared pool.
+const sharedHit = explain('The History of Lemurs', {
+  seed: 'shared',
+  config: {
+    sharedFactor: 1,
+    templates: ['shared {persona}'],
+    patterns: [{
+      id: 'history',
+      triggers: ['history'],
+      templates: ['pattern {persona}'],
+    }],
+    voices: [{ id: 'editor', name: 'Editor', phrase: 'as an editor' }],
+  },
+});
+assert.strictEqual(sharedHit.sharedTemplate, true);
+assert.strictEqual(sharedHit.template, 'shared {persona}');
+assert.strictEqual(sharedHit.persona, 'Editor');
+
+// Supplying patterns with an empty template list is an error. An empty pattern list is too.
+assert.throws(() => quirkyPersona('History', { config: { patterns: [{ id: 'history', templates: [] }] } }), /patterns\[0\]/);
+assert.throws(() => quirkyPersona('History', { config: { patterns: [] } }), /config\.patterns/);
+
+// The shipped packs follow a slugger-style title onto the matching stance.
+assert.strictEqual(explain('The History of Lemurs', { config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'history');
+assert.strictEqual(explain('How Do Lemurs and Geometry Compare?', { config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'comparison');
+assert.strictEqual(explain('A Beginner\'s Guide to Lemurs', { config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'howto');
+const edited = explain('A short account of lemurs through the years', { config: { patternSpread: 1, sharedFactor: 0 } });
+assert.strictEqual(edited.pattern, 'history');
+const plainTitle = explain('Lemurs', { config: { patternSpread: 1, sharedFactor: 0 } });
+assert.strictEqual(plainTitle.usedFallback, true);
+assert.strictEqual(plainTitle.pattern, 'default');
+assert.strictEqual(explain('Die Geschichte von Lemuren', { lang: 'de', config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'history');
+assert.strictEqual(explain('La historia de los lémures', { lang: 'es', config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'history');
+assert.strictEqual(explain('Lemuren Vergleich', { lang: 'de', config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'comparison');
+assert.strictEqual(explain('Comparación de lémures', { lang: 'es', config: { patternSpread: 1, sharedFactor: 0 } }).pattern, 'comparison');
+
 // ---------- default packs ----------
 
 const en = require('./langs/en.json');
@@ -253,15 +348,32 @@ function voicesOk(list, label) {
   });
 }
 
+function templatesOf(pack) {
+  const lists = [].concat(pack.templates || [], pack.quirkyTemplates || []);
+  (pack.patterns || []).forEach((pattern) => {
+    lists.push.apply(lists, pattern.templates || []);
+    lists.push.apply(lists, pattern.quirkyTemplates || []);
+  });
+  return lists;
+}
+
 for (const [pack, label] of [[en, 'en'], [de, 'de'], [es, 'es']]) {
-  assert.ok(pack.templates.length >= 2, label);
+  assert.ok(pack.templates.length >= 1, label);
+  assert.ok(Array.isArray(pack.patterns) && pack.patterns.length >= 2, label);
+  assert.ok(pack.patterns.some((pattern) => !pattern.triggers || pattern.triggers.length === 0), `${label} generic`);
   assert.ok(pack.manners.length >= 4, label);
   assert.ok(pack.verbs.length >= 4, label);
   assert.ok(pack.objects.length >= 3, label);
   voicesOk(pack.voices, label);
   voicesOk(pack.quirkyVoices, label);
-  pack.templates.concat(pack.quirkyTemplates).forEach((template) => {
-    const unknown = template.match(/\{[^}]+\}/g).filter((token) => !/^\{(manner|verb|object|voice|persona)\}$/.test(token));
+  pack.patterns.forEach((pattern) => {
+    assert.ok(pattern.id, label);
+    assert.ok(pattern.templates && pattern.templates.length, `${label} ${pattern.id}`);
+    if (pattern.voices) voicesOk(pattern.voices, `${label} ${pattern.id}`);
+    if (pattern.quirkyVoices) voicesOk(pattern.quirkyVoices, `${label} ${pattern.id}`);
+  });
+  templatesOf(pack).forEach((template) => {
+    const unknown = (template.match(/\{[^}]+\}/g) || []).filter((token) => !/^\{(manner|verb|object|voice|persona)\}$/.test(token));
     assert.deepStrictEqual(unknown, [], `${label} ${template}`);
   });
 }
@@ -304,11 +416,49 @@ assert.deepStrictEqual(
   {
     persona: explain(quickText, { seed: 'demo' }).persona,
     instruction: explain(quickText, { seed: 'demo' }).instruction,
+    pattern: explain(quickText, { seed: 'demo' }).pattern,
+    usedFallback: explain(quickText, { seed: 'demo' }).usedFallback,
   },
   {
     persona: 'Editor',
     instruction: 'Quietly summarise the points in the manner of a careful editor',
+    pattern: 'default',
+    usedFallback: true,
   },
 );
+
+// A slugger-style title selects the matching stance. An edit that keeps a framing word still matches.
+const historyTitle = 'The History of Lemurs';
+assert.deepStrictEqual(quirkyPersona(historyTitle), {
+  persona: 'Historian',
+  instruction: 'Recount the history this title names carefully and as a historian',
+});
+assert.deepStrictEqual(quirkyPersona(historyTitle, { quirks: true, seed: 2 }), {
+  persona: 'Nature documentary',
+  instruction: 'Follow the years this title spans quietly and as a nature documentary',
+});
+const historyDemo = explain(historyTitle, { seed: 'demo' });
+assert.strictEqual(historyDemo.pattern, 'history');
+assert.strictEqual(historyDemo.usedFallback, false);
+assert.strictEqual(historyDemo.sharedTemplate, true);
+assert.strictEqual(historyDemo.persona, 'Historian');
+assert.strictEqual(historyDemo.instruction, 'Recount the history this title names plainly and as a historian');
+assert.strictEqual(historyDemo.object, 'the history this title names');
+assert.ok(historyDemo.score > 0);
+assert.ok(historyDemo.scores[0].id === 'history');
+
+// A slugger {n} string selects the list. 7, 101 and a year are not in that list.
+const counted = explain("3 Things You Didn't Know About Lemurs");
+assert.strictEqual(counted.pattern, 'list');
+assert.strictEqual(counted.usedFallback, false);
+assert.strictEqual(counted.score, 1);
+assert.strictEqual(counted.persona, 'List editor');
+assert.strictEqual(counted.instruction, 'Line up the items this title lines up briefly and as a list editor');
+assert.strictEqual(explain("Two Things You Didn't Know About Lemurs").pattern, 'list');
+assert.strictEqual(explain("Three Things You Didn't Know About Lemurs").pattern, 'list');
+assert.strictEqual(explain("Five Things You Didn't Know About Lemurs").pattern, 'list');
+assert.strictEqual(explain("7 Things You Didn't Know About Lemurs").usedFallback, true);
+assert.strictEqual(explain('Lemurs 101').pattern, 'essentials');
+assert.strictEqual(explain('Lemurs in 1920').usedFallback, true);
 
 console.log('all tests passed');

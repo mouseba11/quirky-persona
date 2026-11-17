@@ -57,7 +57,15 @@
     { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "in the style of Douglas Adams" },
     { "id": "wodehouse", "name": "P.G. Wodehouse", "phrase": "in the style of P.G. Wodehouse" },
     { "id": "encyclopedia", "name": "Bemused encyclopedia", "phrase": "in the voice of a bemused encyclopedia" },
-    { "id": "footnote", "name": "Footnote", "phrase": "as a footnote that got ideas" }
+    { "id": "footnote", "name": "Footnote", "phrase": "as a footnote that got ideas" },
+    { "id": "beat-poet", "name": "Beat poet", "phrase": "in the style of a beat poet" },
+    { "id": "hunter-s-thompson", "name": "Hunter S. Thompson", "phrase": "in the style of Hunter S. Thompson" },
+    { "id": "theatre-critic", "name": "Theatre critic", "phrase": "as a theatre critic" },
+    { "id": "hip-hop", "name": "Hip hop", "phrase": "as a hip hop song" },
+    { "id": "instruction-manual", "name": "Instruction manual", "phrase": "as an instruction manual" },
+    { "id": "shipping-forecast", "name": "Shipping forecast", "phrase": "in the style of the shipping forecast" },
+    { "id": "nature-documentary", "name": "Nature documentary", "phrase": "as a nature documentary" },
+    { "id": "cookbook", "name": "Cookbook", "phrase": "as a cookbook" }
   ],
   "templates": [
     "{manner} {verb} {object} {voice}",
@@ -66,6 +74,423 @@
   "quirkyTemplates": [
     "{manner} {verb} {object}, {voice}",
     "{verb} {object} {manner}, {voice}"
+  ],
+  "numbers": ["2", "3", "5", "two", "three", "five", "42"],
+  "stopWords": [
+    "a", "an", "the", "of", "to", "and", "in", "for", "with", "on",
+    "it", "you", "your", "our", "is", "be", "do", "we", "from", "by",
+    "at", "as", "or", "its", "this", "that", "into", "about", "all", "just",
+    "not", "out", "than", "via", "are", "was", "were", "been", "their", "they",
+    "them", "his", "her", "but", "nor", "onto"
+  ],
+  "patterns": [
+    {
+      "id": "history",
+      "triggers": ["history", "years", "timeline", "origins", "centuries", "forgotten", "retold", "story", "began", "across"],
+      "manners": ["carefully", "plainly", "briefly", "quietly"],
+      "verbs": ["trace", "recount", "follow", "set out"],
+      "objects": ["the history this title names", "the years this title spans"],
+      "voices": [
+        { "id": "historian", "name": "Historian", "phrase": "as a historian" },
+        { "id": "chronicler", "name": "Chronicler", "phrase": "in the voice of a chronicler" }
+      ],
+      "quirkyVoices": [
+        { "id": "antiquarian", "name": "Distracted antiquarian", "phrase": "as a distracted antiquarian" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "comparison",
+      "triggers": ["compare", "comparison", "versus", "vs", "showdown", "rivalry", "choosing", "better", "head"],
+      "manners": ["plainly", "carefully", "directly"],
+      "verbs": ["weigh", "compare", "set side by side"],
+      "objects": ["the two sides this title names", "the rivals this title sets against each other"],
+      "voices": [
+        { "id": "adjudicator", "name": "Adjudicator", "phrase": "as a fair adjudicator" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "connection",
+      "triggers": ["overlap", "together", "connecting", "connection", "thread", "threads", "dots", "picture"],
+      "manners": ["carefully", "clearly", "quietly"],
+      "verbs": ["join", "relate", "trace"],
+      "objects": ["the link this title draws", "the themes this title joins"],
+      "voices": [
+        { "id": "linker", "name": "Essayist", "phrase": "as an essayist tracing a link" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "recipe",
+      "triggers": ["recipe", "scratch", "served", "make"],
+      "manners": ["clearly", "plainly", "carefully"],
+      "verbs": ["set out", "write up", "list"],
+      "objects": ["the method this title names", "the steps this title implies"],
+      "voices": [
+        { "id": "cook", "name": "Cook", "phrase": "as a cook who has made it" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "review",
+      "triggers": ["review", "verdict", "worth", "pros", "cons", "hype"],
+      "manners": ["directly", "plainly", "briefly"],
+      "verbs": ["judge", "weigh", "deliver"],
+      "objects": ["the verdict this title asks for", "the claim this title tests"],
+      "voices": [
+        { "id": "critic", "name": "Critic", "phrase": "as a plain critic" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "howto",
+      "triggers": ["guide", "beginners", "step", "master", "started"],
+      "manners": ["clearly", "plainly", "patiently"],
+      "verbs": ["teach", "lay out", "walk through"],
+      "objects": ["the steps this title implies", "the method this title names"],
+      "voices": [
+        { "id": "instructor", "name": "Instructor", "phrase": "as a patient instructor" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "list",
+      "numbered": true,
+      "triggers": ["best", "picks", "ranked", "favourite", "favorite", "top"],
+      "manners": ["plainly", "briefly", "directly"],
+      "verbs": ["rank", "order", "line up"],
+      "objects": ["the items this title lines up"],
+      "voices": [
+        { "id": "list-editor", "name": "List editor", "phrase": "as a list editor" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "explainer",
+      "triggers": ["why", "explanation", "physics", "decoding", "reasons", "science", "really"],
+      "manners": ["clearly", "plainly", "carefully"],
+      "verbs": ["explain", "unpack", "account for"],
+      "objects": ["the cause this title points at", "the reason this title asks after"],
+      "voices": [
+        { "id": "explainer", "name": "Explainer", "phrase": "as a clear explainer" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "opinion",
+      "triggers": ["opinion", "myths", "unpopular", "rethinking", "defence", "defense", "truth", "case"],
+      "manners": ["directly", "plainly", "carefully"],
+      "verbs": ["argue", "defend", "take a side on"],
+      "objects": ["the claim this title makes"],
+      "voices": [
+        { "id": "essayist", "name": "Essayist", "phrase": "as an essayist" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "news",
+      "triggers": ["news", "latest", "update", "breaking"],
+      "manners": ["briefly", "plainly", "directly"],
+      "verbs": ["report", "note", "set down"],
+      "objects": ["what this title says has changed"],
+      "voices": [
+        { "id": "news-reporter", "name": "Reporter", "phrase": "in a neutral report" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "portrait",
+      "triggers": ["spotlight", "introducing", "portrait", "person", "people", "meet", "glance", "life"],
+      "manners": ["carefully", "plainly", "quietly"],
+      "verbs": ["introduce", "sketch", "present"],
+      "objects": ["the subject this title names"],
+      "voices": [
+        { "id": "portraitist", "name": "Portraitist", "phrase": "as a portraitist" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "place",
+      "triggers": ["landscape", "geography", "visiting", "exploring", "weekend", "travel", "place", "map", "local"],
+      "manners": ["plainly", "carefully", "clearly"],
+      "verbs": ["locate", "describe", "walk through"],
+      "objects": ["the place this title names"],
+      "voices": [
+        { "id": "local-guide", "name": "Local guide", "phrase": "as a local guide" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "nature",
+      "triggers": ["nature", "wild", "species", "tracking", "natural"],
+      "manners": ["carefully", "quietly", "plainly"],
+      "verbs": ["observe", "describe", "follow"],
+      "objects": ["the living thing this title names"],
+      "voices": [
+        { "id": "naturalist", "name": "Naturalist", "phrase": "as a field naturalist" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "science",
+      "triggers": ["theory", "principles", "mechanics", "model"],
+      "manners": ["clearly", "plainly", "carefully"],
+      "verbs": ["derive", "set out", "state"],
+      "objects": ["the principle this title names"],
+      "voices": [
+        { "id": "lecturer", "name": "Lecturer", "phrase": "as a lecturer" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "culture",
+      "triggers": ["culture", "cultural", "meaning"],
+      "manners": ["carefully", "plainly", "clearly"],
+      "verbs": ["interpret", "place", "read"],
+      "objects": ["the custom this title names"],
+      "voices": [
+        { "id": "cultural-critic", "name": "Cultural critic", "phrase": "as a cultural critic" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "society",
+      "triggers": ["society", "social", "politics", "civics", "power"],
+      "manners": ["plainly", "carefully", "directly"],
+      "verbs": ["situate", "account for", "set out"],
+      "objects": ["the arrangement this title names"],
+      "voices": [
+        { "id": "observer", "name": "Observer", "phrase": "as a social observer" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "statistics",
+      "triggers": ["statistics", "statistical", "figures", "numbers", "counting"],
+      "manners": ["plainly", "carefully", "briefly"],
+      "verbs": ["count", "read", "qualify"],
+      "objects": ["the figures this title cites"],
+      "voices": [
+        { "id": "statistician", "name": "Statistician", "phrase": "as a careful statistician" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "sport",
+      "triggers": ["sporting", "championship", "season", "medal", "game", "field"],
+      "manners": ["plainly", "briefly", "directly"],
+      "verbs": ["report", "recount", "follow"],
+      "objects": ["the contest this title names"],
+      "voices": [
+        { "id": "correspondent", "name": "Correspondent", "phrase": "as a sports correspondent" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "objects",
+      "triggers": ["object", "tool", "function", "handling"],
+      "manners": ["plainly", "carefully", "clearly"],
+      "verbs": ["describe", "take apart", "set out"],
+      "objects": ["the thing this title names"],
+      "voices": [
+        { "id": "cataloguer", "name": "Cataloguer", "phrase": "as a cataloguer" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "food",
+      "triggers": ["taste", "pairing", "flavour", "flavor", "eat", "joy", "pleasure"],
+      "manners": ["plainly", "carefully", "quietly"],
+      "verbs": ["describe", "taste", "serve"],
+      "objects": ["the dish this title names"],
+      "voices": [
+        { "id": "cook-at-table", "name": "Cook", "phrase": "as a cook at the table" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "health",
+      "triggers": ["health", "wellness", "mindful", "healthier", "benefits", "body"],
+      "manners": ["carefully", "plainly", "directly"],
+      "verbs": ["qualify", "set out", "caution"],
+      "objects": ["the claim this title makes about the body"],
+      "voices": [
+        { "id": "clinician", "name": "Clinician", "phrase": "as a careful clinician" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "tech",
+      "triggers": ["technology", "digital", "algorithm", "tech", "future", "modern"],
+      "manners": ["plainly", "clearly", "directly"],
+      "verbs": ["specify", "trace", "set out"],
+      "objects": ["the system this title names"],
+      "voices": [
+        { "id": "engineer", "name": "Engineer", "phrase": "as an engineer" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "comfort",
+      "triggers": ["comfort", "classic", "timeless", "home"],
+      "manners": ["quietly", "plainly", "carefully"],
+      "verbs": ["recall", "describe", "settle"],
+      "objects": ["the familiar thing this title names"],
+      "voices": [
+        { "id": "host", "name": "Host", "phrase": "as a host at home" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "personal",
+      "triggers": ["journey", "lessons", "confession", "taught", "personal", "my"],
+      "manners": ["quietly", "plainly", "directly"],
+      "verbs": ["tell", "recall", "own"],
+      "objects": ["the experience this title names"],
+      "voices": [
+        { "id": "diarist", "name": "Diarist", "phrase": "as a diarist" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "essentials",
+      "triggers": ["essentials", "primer", "basics", "101"],
+      "manners": ["briefly", "plainly", "clearly"],
+      "verbs": ["set out", "gather", "distil"],
+      "objects": ["what this title says is essential"],
+      "voices": [
+        { "id": "primer", "name": "Primer", "phrase": "as a short primer" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "tips",
+      "triggers": ["tips", "mistakes", "avoid", "quick", "smart", "ways", "hacks", "common", "easy"],
+      "manners": ["plainly", "briefly", "directly"],
+      "verbs": ["list", "set out", "warn about"],
+      "objects": ["the practical points this title names"],
+      "voices": [
+        { "id": "advisor", "name": "Advisor", "phrase": "as a practical advisor" }
+      ],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": ["{manner} {verb} {object}, {voice}"]
+    },
+    {
+      "id": "default",
+      "triggers": [],
+      "templates": [
+        "{manner} {verb} {object} {voice}",
+        "{verb} {object} {manner} and {voice}"
+      ],
+      "quirkyTemplates": [
+        "{manner} {verb} {object}, {voice}",
+        "{verb} {object} {manner}, {voice}"
+      ]
+    }
   ],
   "locale": {
     "id": "en",

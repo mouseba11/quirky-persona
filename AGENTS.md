@@ -2,7 +2,7 @@
 
 Guidance for AI agents (and humans in a hurry) working on **quirky-persona**.
 
-quirky-persona turns up to 256 words of text into a persona name and a writing instruction. It fills a template from configurable lists (manners, verbs, objects, voices). It is local, deterministic and has **no runtime dependencies**. The text steadies the seed. It does not score the lists.
+quirky-persona turns a title into a persona name and a writing instruction. The title is scored against pattern triggers the way quirky-slugger scores a passage, and the winning pattern fills a template from its lists (manners, verbs, objects, voices). It is local, deterministic and has **no runtime dependencies**.
 
 Read order for a non-trivial change:
 
@@ -25,8 +25,8 @@ Run `npm test` after every change.
 | Path | What it is | Change it when |
 | --- | --- | --- |
 | `index.js` | The whole algorithm and the public API (`quirkyPersona`, `explain`), including `options.lang`. | The **method** changes. |
-| `quirky-persona.config.json` | Shared algorithm settings only (`maxWords`, `quirks`, `quirkFactor`, default `lang`). | You change those defaults. |
-| `langs/*.json` | Language packs (`en`, `de`, `es`): lists, voices, templates, `locale`. | You want different **wording**, a new voice, or a new language. Most content changes belong here. |
+| `quirky-persona.config.json` | Shared algorithm settings only (`maxWords`, `minScore`, `patternSpread`, `sharedFactor`, `quirks`, `quirkFactor`, default `lang`). | You change those defaults. |
+| `langs/*.json` | Language packs (`en`, `de`, `es`): patterns, shared lists, voices, stop words, `locale`. | You want different **wording**, a new voice, a new pattern, or a new language. Most content changes belong here. |
 | `langs/samples.json` | Example-site sample text per language. Not published. | The demo sample changes. |
 | `package.json` | Name (`@mouseba11/quirky-persona`), scripts, and the `files` whitelist that decides what is published. | A file must be added to or kept out of the package, or you add a language pack. |
 | `test.js` | Test suite. Uses pinned sentences plus surveys over the default English pack. | You change behaviour or defaults. |
@@ -48,7 +48,7 @@ Published: `index.js`, the config file, `langs/en.json`, `langs/de.json`, `langs
 4. **Prefer config over code.** A new sentence shape is a new template. A new persona is a new voice. A new adverb is a new list entry. Only touch `index.js` when the method itself must change.
 5. **Keep the persona and the instruction on the same voice.** `persona` is `voice.name`. `{voice}` is `voice.phrase`. Never choose them separately.
 6. **Grammar is authored, not computed.** The code does not inflect words. It capitalises the first character of the finished instruction and collapses whitespace. Fit is guaranteed by the way the template and the list entries are written. Language support is rudimentary: the shipped packs demonstrate the hooks. Proper localisation is left as an exercise for other quirky personas.
-7. **The text does not score properties.** Do not add trigger words or similarity. The text is only the seed. If a caller wants the subject to matter, they change the lists.
+7. **The title scores patterns. It does not understand the article.** Matching is TF-IDF and cosine over pattern `triggers`, the same fold and formula as quirky-slugger. Triggers are framing words that appear in the title (`history`, `compare`, `guide`), not the subject. A pattern with `numbered: true` is the exception: a token from the pack's `numbers` list selects it on its own. That list is the strings slugger writes for `{n}` (`2`, `3`, `5`, `two`, `three`, `five`, and the quirky `42`). A title with no trigger above `minScore` and none of those strings uses a pattern whose `triggers` array is empty. Do not add a second similarity engine.
 8. **Do not add logging or debug output** to `index.js`. Use `explain()` to inspect a result.
 9. **Keep docs and code in step.** If you change behaviour, update `docs/ALGORITHM.agents.md` and the matching `README.md` section in the same change.
 10. **Do not modify unrelated code.** Keep changes focused on the request.
@@ -59,13 +59,13 @@ Published: `index.js`, the config file, `langs/en.json`, `langs/de.json`, `langs
 
 ```js
 const q = require('./index.js');
-const e = q.explain('some passage', { seed: 'x', quirks: true });
-e.persona; e.instruction; e.template;
-e.manner; e.verb; e.object; e.voice; e.voiceId;
-e.quirksMode; e.quirky; e.quirkFactor;
+const e = q.explain('The History of Lemurs', { seed: 'x', quirks: true });
+e.persona; e.instruction; e.pattern; e.score; e.usedFallback;
+e.template; e.manner; e.verb; e.object; e.voice; e.voiceId;
+e.quirksMode; e.quirky; e.quirkFactor; e.scores;
 ```
 
-To reproduce a result, keep the exact text (it is part of the seed), config and seed.
+To reproduce a result, keep the exact title (it is part of the seed and the match), config and seed.
 
 To render one template with one of each property:
 
@@ -87,7 +87,7 @@ console.log(q('', {
 
 1. Copy `langs/en.json` to `langs/xx.json` (two-letter code).
 2. Fill `locale`: `id` and `label`.
-3. Rewrite the manners, verbs, objects, voices, and templates so a filled sentence reads correctly in that language. Put the word order in the templates. The code will not rearrange them.
+3. Rewrite the shared lists, the patterns (triggers and, where the stance should change, the voices and verbs), and the templates so a filled sentence reads correctly in that language. Put the word order in the templates. The code will not rearrange them. Triggers should be words that actually appear in that language's slugger titles.
 4. Add a sample under `langs/samples.json`.
 5. Add `langs/xx.json` to the `files` list in `package.json`. It is an explicit whitelist (so `samples.json` stays out), and a pack that is not listed is not published.
 6. The example site picks up new packs from the `langs/` folder automatically (`GET /api/langs`).
@@ -102,7 +102,7 @@ Append an object to `voices` or `quirkyVoices` in `langs/en.json` (and the other
 { "id": "douglas-adams", "name": "Douglas Adams", "phrase": "in the style of Douglas Adams" }
 ```
 
-- `phrase` is what `{voice}` writes. Read it in both default templates: after a space, and after `and `.
+- `phrase` is what `{voice}` writes. Read it in both default templates: after a space, and after `and `. A style is the same shape as an actor: `as a hip hop song` is a phrase, and `Hip hop` is the name the call returns.
 - `name` is the persona. Keep it short enough to stand on its own.
 - Prefer **appending**. Inserting changes which existing seed lands on which row.
 - A playful persona belongs on `quirkyVoices`, so it stays out of the pool while quirks are off.
@@ -181,6 +181,6 @@ Add an entry to `CHANGELOG.md` for each release. `npm test` first, then `npm run
 - A custom config replaces a list only when that key is present. Omitting `voices` keeps the pack's voices, so `persona` is still filled.
 - `quirkyTemplates` are added to the plain templates, not used instead of them.
 - Quirk factor is one roll for every list. It is not a separate roll per property.
-- The text is part of the seed. One character of difference inside `maxWords` can change the choice. The text is not evidence that the package "understood" the passage.
+- The text is part of the seed and of the match. One character of difference inside `maxWords` can change the choice. A match on `history` means the title contained a history trigger. It does not mean the package read the article.
 - A `quirkFactor` that is missing or not a number counts as 0, so quirky lists are never added.
 - Do not put a persona's name in `phrase` unless the sentence should say the name. Use `{persona}` when the name itself belongs in the instruction.

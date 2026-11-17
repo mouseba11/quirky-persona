@@ -64,8 +64,19 @@
   .list-section h3 { margin-bottom: .2rem; }
   details.advanced { margin-top: 1.5rem; border: 1px solid #ccc; border-radius: 6px; padding: .55rem .75rem .35rem; }
   details.advanced > summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+  .pattern { border: 1px solid #e4e4e4; border-radius: 6px; margin: .5rem 0; }
+  .pattern-head { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; padding: .4rem .5rem; }
+  .pattern-head input[type="text"] { flex: 1; min-width: 10rem; }
+  .pattern-body { padding: .25rem .75rem .75rem; }
+  .pattern-body h3 { font-size: .95rem; margin: .8rem 0 .3rem; }
   .warn { color: #b00; }
   .muted { color: #777; font-size: .85rem; }
+  .scores { list-style: none; padding: 0; margin: .75rem 0 0; }
+  .scores li { display: grid; grid-template-columns: 8.5rem 1fr 3.2rem; gap: .5rem; align-items: center; margin: .2rem 0; font-size: .8rem; }
+  .scores .bar { height: .5rem; background: #e6e6e0; border-radius: 3px; }
+  .scores .bar span { display: block; height: 100%; background: #8ab; border-radius: 3px; }
+  .scores li.chosen { font-weight: 700; }
+  .scores li.chosen .bar span { background: #2a6; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -77,10 +88,10 @@
     <button type="button" id="tabConfig" class="tab" aria-pressed="false">Config</button>
   </nav>
 </header>
-<p class="sub" id="blurb">Enter some text, press Generate, and see the persona and the writing instruction.</p>
+<p class="sub" id="blurb">Paste a title, press Generate, and see the persona and the writing instruction.</p>
 
 <section id="viewTester">
-<label for="text" id="textLabel">Text (first 256 words steady the result)</label>
+<label for="text" id="textLabel">Title (first 256 words are matched)</label>
 <textarea id="text"></textarea>
 <div class="count" id="count"></div>
 
@@ -103,7 +114,7 @@
   </label>
   <span class="muted">Same input and same seed always give the same instruction.</span>
 </div>
-<p class="muted">Opening this tab loads the sample and the config from Config. The text only steadies the choice. It does not pick the words.</p>
+<p class="muted">Opening this tab loads the sample and the config from Config. The title is scored against the patterns. A title with none of their trigger words uses the generic pattern.</p>
 
 <div id="result" hidden>
   <fieldset id="output">
@@ -115,6 +126,8 @@
   <div id="details" hidden>
     <h2>Choice</h2>
     <dl id="facts"></dl>
+    <h2>Patterns</h2>
+    <ul id="scores" class="scores"></ul>
     <details>
       <summary>Raw data</summary>
       <pre id="raw"></pre>
@@ -138,8 +151,8 @@
 <p id="configStatus" class="warn"></p>
 
 <h2>Test sample</h2>
-<p class="muted">Text for the tester. Switching to Tester fills the form with this, and runs it with the config below.</p>
-<label for="sampleText" id="sampleTextLabel">Text (first 256 words steady the result)</label>
+<p class="muted">A title for the tester. Switching to Tester fills the form with this, and runs it with the config below.</p>
+<label for="sampleText" id="sampleTextLabel">Title (first 256 words are matched)</label>
 <textarea id="sampleText" class="short"></textarea>
 <div class="count" id="sampleCount"></div>
 <div class="row">
@@ -159,6 +172,13 @@
 <h2>Lists</h2>
 <p class="muted">Each list works the same way: edit a row, move it, delete it, or add one. Order matters, because a seed picks by position.</p>
 <div id="lists"></div>
+
+<h2>Patterns</h2>
+<p class="muted">One block per pattern. Edit opens the actors for that stance, then its trigger words and templates. Leave a pattern's own list empty to use the shared list above. A pattern with no triggers is the generic fallback. Number means one of the number strings, such as 3 or three, selects this pattern.</p>
+<div id="patterns"></div>
+<div class="row">
+  <button id="addPattern" type="button">Add pattern</button>
+</div>
 
 <h2>Config JSON</h2>
 <p class="muted">This is the config the tester uses. Copy it into <code>options.config</code>, or into a JSON file you pass by path. The sample above is not part of it. Nothing is saved to disk.</p>
@@ -191,7 +211,8 @@ const STRING_LISTS = [
   ['manners', 'Manners', 'Used by {manner}.', false],
   ['verbs', 'Verbs', 'Used by {verb}. Write the form the sentence needs.', false],
   ['objects', 'Objects', 'Used by {object}. A short noun phrase, such as the text.', false],
-  ['templates', 'Templates', 'Plain instruction shapes. At least one is required.', false],
+  ['templates', 'Templates', 'Shared sentence shapes. A matched pattern uses its own templates unless the shared factor hits.', false],
+  ['numbers', 'Numbers', 'The {n} strings. A title that contains one selects a pattern marked Number.', false],
 ];
 
 const QUIRKY_LISTS = [
@@ -201,8 +222,45 @@ const QUIRKY_LISTS = [
   ['quirkyTemplates', 'Quirky templates', 'Added to the template pool when the quirk factor hits.', false],
 ];
 
+const LIST_SECTIONS = [
+  {
+    title: 'Quirky',
+    hint: 'Playful actors and words. Added when quirks are on and the quirk factor hits.',
+    groups: [
+      ['quirkyVoices', 'Quirky actors', 'Extra actors added on a quirky roll. The name is the persona. The phrase is what {voice} writes.', true],
+      ['quirkyManners', 'Quirky manners', 'Added to {manner} when the quirk factor hits.', false],
+      ['quirkyVerbs', 'Quirky verbs', 'Added to {verb} when the quirk factor hits.', false],
+      ['quirkyObjects', 'Quirky objects', 'Added to {object} when the quirk factor hits.', false],
+      ['quirkyTemplates', 'Quirky templates', 'Added to the shared templates when the quirk factor hits.', false],
+    ],
+  },
+  {
+    title: 'Shared',
+    hint: 'Used when a pattern does not bring its own list. A pattern with its own actors or words uses those instead.',
+    groups: [
+      ['voices', 'Actors', 'The plain actors. The name is the persona the call returns. The phrase is what {voice} writes.', true],
+      ['manners', 'Manners', 'Used by {manner}.', false],
+      ['verbs', 'Verbs', 'Used by {verb}. Write the form the sentence needs.', false],
+      ['objects', 'Objects', 'Used by {object}. A short noun phrase, such as the text.', false],
+      ['templates', 'Templates', 'Shared sentence shapes. A matched pattern uses its own templates unless the shared factor hits.', false],
+      ['numbers', 'Numbers', 'The {n} strings, such as 3 or three. A title that contains one selects a pattern marked Number.', false],
+    ],
+  },
+  {
+    title: 'Advanced',
+    hint: 'Words ignored when a title is matched to a pattern. The defaults already cover the small words.',
+    advanced: true,
+    groups: [
+      ['stopWords', 'Stop words', 'Dropped before a title is scored.', false],
+    ],
+  },
+];
+
 const SETTINGS = [
   ['maxWords', 'Max words', 'number', { min: '0', step: '1' }],
+  ['minScore', 'Min score', 'number', { min: '0', step: '0.01' }],
+  ['patternSpread', 'Pattern spread', 'number', { min: '0', max: '1', step: '0.05' }],
+  ['sharedFactor', 'Shared factor', 'number', { min: '0', max: '1', step: '0.05' }],
   ['quirks', 'Quirks', 'checkbox', {}],
   ['quirkFactor', 'Quirk factor', 'number', { min: '0', max: '1', step: '0.05' }],
 ];
@@ -214,6 +272,7 @@ let currentLang = 'en';
 let config = null;
 let settingHelp = {};
 let helpButton = null;
+let openPatterns = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -249,6 +308,9 @@ function packConfig(pack) {
   const source = pack || {};
   return {
     maxWords: algoDefaults.maxWords,
+    minScore: algoDefaults.minScore,
+    patternSpread: algoDefaults.patternSpread,
+    sharedFactor: algoDefaults.sharedFactor,
     quirks: algoDefaults.quirks === true,
     quirkFactor: algoDefaults.quirkFactor,
     manners: (source.manners || []).slice(),
@@ -261,6 +323,9 @@ function packConfig(pack) {
     quirkyVoices: asVoices(source.quirkyVoices),
     templates: (source.templates || []).slice(),
     quirkyTemplates: (source.quirkyTemplates || []).slice(),
+    stopWords: (source.stopWords || []).slice(),
+    numbers: (source.numbers || []).map((item) => String(item)),
+    patterns: clone(source.patterns || []),
   };
 }
 
@@ -275,8 +340,28 @@ function mergeConfig(user) {
     if (source[def[0]] !== undefined) base[def[0]] = (source[def[0]] || []).map((item) => String(item == null ? '' : item));
   });
   if (source.voices !== undefined) base.voices = asVoices(source.voices);
-  if (source.quirkyVoices !== undefined) base.quirkyVoices = asVoices(source.quirkyVoices);
+  if (source.quirkyVoices !== undefined) base.quirkyVoices = mergeNewVoices(source.quirkyVoices, base.quirkyVoices);
+  if (Array.isArray(source.stopWords)) base.stopWords = source.stopWords.slice();
+  if (Array.isArray(source.patterns)) {
+    const patterns = clone(source.patterns);
+    const packPatterns = packDefaults && Array.isArray(packDefaults.patterns) ? packDefaults.patterns : [];
+    patterns.forEach((pattern) => {
+      if (!pattern || typeof pattern !== 'object' || pattern.numbered !== undefined) return;
+      const fromPack = packPatterns.find((item) => item && item.id === pattern.id);
+      if (fromPack && fromPack.numbered === true) pattern.numbered = true;
+    });
+    base.patterns = patterns;
+  }
   return base;
+}
+
+function mergeNewVoices(stored, packVoices) {
+  const rows = asVoices(stored);
+  const ids = new Set(rows.map((voice) => voice.id).filter(Boolean));
+  asVoices(packVoices).forEach((voice) => {
+    if (voice.id && !ids.has(voice.id)) rows.push(voice);
+  });
+  return rows;
 }
 
 function cleanVoices(list) {
@@ -291,9 +376,35 @@ function cleanVoices(list) {
   });
 }
 
+function cleanPatterns(patterns) {
+  const optional = ['manners', 'quirkyManners', 'verbs', 'quirkyVerbs', 'objects', 'quirkyObjects'];
+  return (Array.isArray(patterns) ? patterns : []).map((pattern) => {
+    const source = pattern && typeof pattern === 'object' ? pattern : {};
+    const cleaned = {
+      id: String(source.id == null ? '' : source.id).trim(),
+      triggers: trimmed(source.triggers),
+      templates: trimmed(source.templates),
+      quirkyTemplates: trimmed(source.quirkyTemplates),
+    };
+    optional.forEach((key) => {
+      const list = trimmed(source[key]);
+      if (list.length) cleaned[key] = list;
+    });
+    const voices = cleanVoices(source.voices);
+    const quirkyVoices = cleanVoices(source.quirkyVoices);
+    if (voices.length) cleaned.voices = voices;
+    if (quirkyVoices.length) cleaned.quirkyVoices = quirkyVoices;
+    if (source.numbered === true || source.numbered === false) cleaned.numbered = source.numbered;
+    return cleaned;
+  });
+}
+
 function cleanConfig(source) {
   const cleaned = {
     maxWords: Number(source.maxWords),
+    minScore: Number(source.minScore),
+    patternSpread: Number(source.patternSpread),
+    sharedFactor: Number(source.sharedFactor),
     quirks: source.quirks === true,
     quirkFactor: Number(source.quirkFactor),
   };
@@ -302,6 +413,8 @@ function cleanConfig(source) {
   });
   cleaned.voices = cleanVoices(source.voices);
   cleaned.quirkyVoices = cleanVoices(source.quirkyVoices);
+  cleaned.stopWords = trimmed(source.stopWords);
+  cleaned.patterns = cleanPatterns(source.patterns);
   return cleaned;
 }
 
@@ -320,11 +433,11 @@ function updateWordCounts() {
   [['count', 'text'], ['sampleCount', 'sampleText']].forEach((pair) => {
     const node = $(pair[0]);
     const words = countWords($(pair[1]).value);
-    node.textContent = words + (words === 1 ? ' word' : ' words') + ' · ' + limit + ' used';
+    node.textContent = words + (words === 1 ? ' word' : ' words') + ' · ' + limit + ' matched';
     node.className = words > limit ? 'count over' : 'count';
   });
-  $('textLabel').textContent = 'Text (first ' + limit + ' words steady the result)';
-  $('sampleTextLabel').textContent = 'Text (first ' + limit + ' words steady the result)';
+  $('textLabel').textContent = 'Title (first ' + limit + ' words are matched)';
+  $('sampleTextLabel').textContent = 'Title (first ' + limit + ' words are matched)';
 }
 
 function readStored(key) {
@@ -340,8 +453,8 @@ function showTab(name) {
   $('tabTester').setAttribute('aria-pressed', tester ? 'true' : 'false');
   $('tabConfig').setAttribute('aria-pressed', tester ? 'false' : 'true');
   $('blurb').textContent = tester
-    ? 'Enter some text, press Generate, and see the persona and the writing instruction.'
-    : 'Edit the sample and the property lists. Switching to Tester uses what is here.';
+    ? 'Paste a title, press Generate, and see the persona and the writing instruction.'
+    : 'Edit the sample, the lists, and the patterns. Switching to Tester uses what is here.';
   if (tester) applySampleToTester();
   hideHelp();
 }
@@ -421,6 +534,9 @@ function show(data) {
   details.hidden = false;
   const dl = $('facts');
   dl.textContent = '';
+  fact(dl, 'pattern', data.usedFallback ? data.pattern + ' (fallback)' : data.pattern);
+  fact(dl, 'score', data.score == null ? '' : Number(data.score).toFixed(3));
+  fact(dl, 'shared template', data.sharedTemplate ? 'yes' : 'no');
   fact(dl, 'manner', data.manner);
   fact(dl, 'verb', data.verb);
   fact(dl, 'object', data.object);
@@ -433,7 +549,31 @@ function show(data) {
   fact(dl, 'words used', data.wordsUsed);
   fact(dl, 'words ignored', data.wordsIgnored);
   fact(dl, 'seed', data.seed == null ? 'none' : data.seed);
+  renderScores(data);
   $('raw').textContent = JSON.stringify(data, null, 2);
+}
+
+function renderScores(data) {
+  const list = $('scores');
+  list.textContent = '';
+  const scores = Array.isArray(data.scores) ? data.scores : [];
+  const best = scores.reduce((max, row) => Math.max(max, Number(row.score) || 0), 0);
+  scores.forEach((row) => {
+    const item = document.createElement('li');
+    if (row.id === data.pattern) item.className = 'chosen';
+    const name = document.createElement('span');
+    name.textContent = row.id;
+    const track = document.createElement('div');
+    track.className = 'bar';
+    const fill = document.createElement('span');
+    const score = Number(row.score) || 0;
+    fill.style.width = (best > 0 ? Math.round((score / best) * 100) : 0) + '%';
+    track.appendChild(fill);
+    const value = document.createElement('span');
+    value.textContent = score.toFixed(3);
+    item.append(name, track, value);
+    list.appendChild(item);
+  });
 }
 
 function readLog() {
@@ -530,8 +670,14 @@ function refreshOutput() {
   $('configOut').value = JSON.stringify(cleaned, null, 2);
   const notes = [];
   if (!Number.isFinite(cleaned.maxWords)) notes.push('Max words needs to be a number.');
+  if (!Number.isFinite(cleaned.minScore)) notes.push('Min score needs to be a number.');
+  if (!Number.isFinite(cleaned.patternSpread)) notes.push('Pattern spread needs to be a number.');
+  if (!Number.isFinite(cleaned.sharedFactor)) notes.push('Shared factor needs to be a number.');
   if (!Number.isFinite(cleaned.quirkFactor)) notes.push('Quirk factor needs to be a number.');
-  if (!cleaned.templates.length) notes.push('The config needs at least one template.');
+  if (!cleaned.patterns.length) notes.push('The config needs at least one pattern.');
+  else if (cleaned.patterns.some((pattern) => !pattern || !Array.isArray(pattern.templates) || !pattern.templates.filter(Boolean).length)) {
+    notes.push('Every pattern needs at least one template.');
+  }
   $('configProblems').textContent = notes.join(' ');
   try { localStorage.setItem(CONFIG_KEY, JSON.stringify({ lang: currentLang, config })); } catch (e) { /* ignore */ }
   saveSample();
@@ -575,6 +721,7 @@ function mountList(container, items, options) {
     input.addEventListener('input', () => {
       items[index] = input.value;
       refreshOutput();
+      if (options.onEdit) options.onEdit();
     });
     td.appendChild(input);
     const actions = document.createElement('td');
@@ -586,6 +733,7 @@ function mountList(container, items, options) {
         items.splice(index, 1);
         mountList(container, items, options);
         refreshOutput();
+        if (options.onEdit) options.onEdit();
       }),
     );
     tr.append(td, actions);
@@ -599,11 +747,12 @@ function mountList(container, items, options) {
     const last = inputs[inputs.length - 1];
     if (last) last.focus();
     refreshOutput();
+    if (options.onEdit) options.onEdit();
   });
   container.append(table, add);
 }
 
-function mountVoices(container, items, label) {
+function mountVoices(container, items, label, onEdit) {
   container.textContent = '';
   const table = document.createElement('table');
   table.className = 'grid';
@@ -616,6 +765,7 @@ function mountVoices(container, items, label) {
   });
   head.appendChild(hr);
   const tbody = document.createElement('tbody');
+  const again = () => mountVoices(container, items, label, onEdit);
   items.forEach((voice, index) => {
     const tr = document.createElement('tr');
     ['id', 'name', 'phrase'].forEach((key) => {
@@ -629,6 +779,7 @@ function mountVoices(container, items, label) {
       input.addEventListener('input', () => {
         voice[key] = input.value;
         refreshOutput();
+        if (onEdit) onEdit();
       });
       td.appendChild(input);
       tr.appendChild(td);
@@ -636,12 +787,13 @@ function mountVoices(container, items, label) {
     const actions = document.createElement('td');
     actions.className = 'actions';
     actions.append(
-      smallButton('Up', index === 0, () => moveItem(items, index, -1, () => mountVoices(container, items, label))),
-      smallButton('Down', index === items.length - 1, () => moveItem(items, index, 1, () => mountVoices(container, items, label))),
+      smallButton('Up', index === 0, () => moveItem(items, index, -1, again)),
+      smallButton('Down', index === items.length - 1, () => moveItem(items, index, 1, again)),
       smallButton('Delete', false, () => {
         items.splice(index, 1);
-        mountVoices(container, items, label);
+        again();
         refreshOutput();
+        if (onEdit) onEdit();
       }),
     );
     tr.appendChild(actions);
@@ -650,11 +802,12 @@ function mountVoices(container, items, label) {
   table.append(head, tbody);
   const add = smallButton('Add', false, () => {
     items.push(blankVoice());
-    mountVoices(container, items, label);
+    again();
     const inputs = container.querySelectorAll('input');
     const last = inputs[inputs.length - 3];
     if (last) last.focus();
     refreshOutput();
+    if (onEdit) onEdit();
   });
   container.append(table, add);
 }
@@ -792,34 +945,188 @@ function renderSettings() {
 function renderLists() {
   const root = $('lists');
   root.textContent = '';
-  const plain = document.createElement('div');
-  plain.className = 'list-section';
-  const heading = document.createElement('h3');
-  heading.textContent = 'Plain';
-  const hint = document.createElement('p');
-  hint.className = 'muted';
-  hint.textContent = 'Used on every call. A quirky roll adds the quirky lists to these. It does not replace them.';
-  plain.append(heading, hint);
-  STRING_LISTS.forEach((def) => plain.appendChild(listGroup(def, config[def[0]], false)));
-  plain.appendChild(listGroup(['voices', 'Voices', 'The persona name, and the phrase {voice} writes.', true], config.voices, true));
-  root.appendChild(plain);
+  LIST_SECTIONS.forEach((section) => {
+    const groups = section.groups.map((def) => {
+      if (!Array.isArray(config[def[0]])) config[def[0]] = [];
+      return listGroup(def, config[def[0]], def[3]);
+    });
+    if (section.advanced) {
+      const details = document.createElement('details');
+      details.className = 'advanced';
+      const summary = document.createElement('summary');
+      summary.textContent = section.title;
+      const hint = document.createElement('p');
+      hint.className = 'muted';
+      hint.textContent = section.hint;
+      details.append(summary, hint, ...groups);
+      root.appendChild(details);
+      return;
+    }
+    const block = document.createElement('div');
+    block.className = 'list-section';
+    const heading = document.createElement('h3');
+    heading.textContent = section.title;
+    const hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.textContent = section.hint;
+    block.append(heading, hint, ...groups);
+    root.appendChild(block);
+  });
+}
 
-  const quirky = document.createElement('details');
-  quirky.className = 'advanced';
-  const summary = document.createElement('summary');
-  summary.textContent = 'Quirky';
-  const quirkyHint = document.createElement('p');
-  quirkyHint.className = 'muted';
-  quirkyHint.textContent = 'Added to the matching plain list when quirks are on and the quirk factor hits.';
-  quirky.append(summary, quirkyHint);
-  QUIRKY_LISTS.forEach((def) => quirky.appendChild(listGroup(def, config[def[0]], false)));
-  quirky.appendChild(listGroup(['quirkyVoices', 'Quirky voices', 'Added to the voice pool when the quirk factor hits.', true], config.quirkyVoices, true));
-  root.appendChild(quirky);
+function patternList(pattern, key) {
+  if (!Array.isArray(pattern[key])) pattern[key] = [];
+  return pattern[key];
+}
+
+function actorCount(pattern) {
+  return cleanVoices(pattern.voices).length + cleanVoices(pattern.quirkyVoices).length;
+}
+
+function patternCounts(pattern) {
+  const actors = actorCount(pattern);
+  return actors + (actors === 1 ? ' actor' : ' actors') + ' · '
+    + trimmed(pattern.triggers).length + ' triggers · '
+    + trimmed(pattern.templates).length + ' templates · '
+    + trimmed(pattern.quirkyTemplates).length + ' quirky';
+}
+
+function renderPatterns() {
+  const root = $('patterns');
+  if (!root || !config) return;
+  if (openPatterns.length !== config.patterns.length) openPatterns = config.patterns.map(() => false);
+  root.textContent = '';
+  config.patterns.forEach((pattern, index) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'pattern';
+    const head = document.createElement('div');
+    head.className = 'pattern-head';
+    const idInput = document.createElement('input');
+    idInput.type = 'text';
+    idInput.autocomplete = 'off';
+    idInput.placeholder = 'id';
+    idInput.value = pattern.id || '';
+    idInput.setAttribute('aria-label', 'Pattern id ' + (index + 1));
+    const summary = document.createElement('span');
+    summary.className = 'muted';
+    const body = document.createElement('div');
+    body.className = 'pattern-body';
+    body.hidden = !openPatterns[index];
+
+    function paintSummary() {
+      const missing = !trimmed(pattern.templates).length;
+      summary.textContent = patternCounts(pattern);
+      summary.className = missing ? 'warn' : 'muted';
+    }
+
+    function buildBody() {
+      body.textContent = '';
+      const actors = document.createElement('h3');
+      actors.textContent = 'Actors';
+      const actorHint = document.createElement('p');
+      actorHint.className = 'muted';
+      actorHint.textContent = 'The personas this pattern can return. Leave empty to use the shared actors. The name is the persona. The phrase is what {voice} writes.';
+      const actorBox = document.createElement('div');
+      body.append(actors, actorHint, actorBox);
+      mountVoices(actorBox, patternList(pattern, 'voices'), 'Actor', paintSummary);
+
+      const quirkyActors = document.createElement('h3');
+      quirkyActors.textContent = 'Quirky actors';
+      const quirkyHint = document.createElement('p');
+      quirkyHint.className = 'muted';
+      quirkyHint.textContent = 'Added on a quirky roll, alongside the shared quirky actors.';
+      const quirkyBox = document.createElement('div');
+      body.append(quirkyActors, quirkyHint, quirkyBox);
+      mountVoices(quirkyBox, patternList(pattern, 'quirkyVoices'), 'Quirky actor', paintSummary);
+
+      [
+        ['Triggers', 'triggers', 'Words in the title that select this pattern. Empty means this pattern is a generic fallback.'],
+        ['Templates', 'templates', 'Sentence shapes for this stance. At least one is required.'],
+        ['Quirky templates', 'quirkyTemplates', 'Added to this pattern\'s templates when the quirk factor hits.'],
+        ['Manners', 'manners', 'Leave empty to use the shared manners.'],
+        ['Quirky manners', 'quirkyManners', 'Leave empty to use the shared quirky manners.'],
+        ['Verbs', 'verbs', 'Leave empty to use the shared verbs.'],
+        ['Quirky verbs', 'quirkyVerbs', 'Leave empty to use the shared quirky verbs.'],
+        ['Objects', 'objects', 'Leave empty to use the shared objects.'],
+        ['Quirky objects', 'quirkyObjects', 'Leave empty to use the shared quirky objects.'],
+      ].forEach((part) => {
+        const heading = document.createElement('h3');
+        heading.textContent = part[0];
+        const hint = document.createElement('p');
+        hint.className = 'muted';
+        hint.textContent = part[2];
+        const box = document.createElement('div');
+        body.append(heading, hint, box);
+        mountList(box, patternList(pattern, part[1]), { label: part[0], onEdit: paintSummary });
+      });
+    }
+
+    idInput.addEventListener('input', () => {
+      pattern.id = idInput.value;
+      refreshOutput();
+    });
+
+    const toggle = smallButton(openPatterns[index] ? 'Hide' : 'Edit', false, () => {
+      openPatterns[index] = !openPatterns[index];
+      body.hidden = !openPatterns[index];
+      toggle.textContent = openPatterns[index] ? 'Hide' : 'Edit';
+      if (openPatterns[index] && !body.childElementCount) buildBody();
+    });
+    if (openPatterns[index]) buildBody();
+    paintSummary();
+
+    const numberLabel = document.createElement('label');
+    numberLabel.style.margin = '0';
+    const numberBox = document.createElement('input');
+    numberBox.type = 'checkbox';
+    numberBox.checked = pattern.numbered === true;
+    numberBox.setAttribute('aria-label', 'Number selects pattern ' + (index + 1));
+    numberBox.title = 'A title that contains one of the number strings selects this pattern.';
+    numberBox.addEventListener('change', () => {
+      pattern.numbered = numberBox.checked;
+      refreshOutput();
+    });
+    numberLabel.append(numberBox, document.createTextNode(' Number'));
+
+    head.append(
+      toggle,
+      idInput,
+      numberLabel,
+      summary,
+      smallButton('Up', index === 0, () => movePattern(index, -1)),
+      smallButton('Down', index === config.patterns.length - 1, () => movePattern(index, 1)),
+      smallButton('Delete', false, () => {
+        const name = String(pattern.id || '').trim() || 'untitled';
+        if (!confirm('Delete pattern "' + name + '"?')) return;
+        config.patterns.splice(index, 1);
+        openPatterns.splice(index, 1);
+        renderPatterns();
+        refreshOutput();
+      }),
+    );
+    wrap.append(head, body);
+    root.appendChild(wrap);
+  });
+}
+
+function movePattern(index, direction) {
+  const next = index + direction;
+  if (next < 0 || next >= config.patterns.length) return;
+  const pattern = config.patterns[index];
+  config.patterns[index] = config.patterns[next];
+  config.patterns[next] = pattern;
+  const flag = openPatterns[index];
+  openPatterns[index] = openPatterns[next];
+  openPatterns[next] = flag;
+  renderPatterns();
+  refreshOutput();
 }
 
 function renderEditor() {
+  openPatterns = (config.patterns || []).map(() => false);
   renderSettings();
   renderLists();
+  renderPatterns();
   refreshOutput();
 }
 
@@ -838,6 +1145,15 @@ $('useExample').addEventListener('click', () => {
   const sample = samples[currentLang] || {};
   $('sampleText').value = sample.text || '';
   refreshOutput();
+});
+$('addPattern').addEventListener('click', () => {
+  config.patterns.push({ id: '', triggers: [], templates: [''], quirkyTemplates: [], voices: [], quirkyVoices: [] });
+  openPatterns.push(true);
+  renderPatterns();
+  refreshOutput();
+  const blocks = $('patterns').querySelectorAll('.pattern');
+  const last = blocks[blocks.length - 1];
+  if (last) last.scrollIntoView({ block: 'nearest' });
 });
 $('quirkFactor').addEventListener('input', () => {
   $('quirkFactorValue').textContent = $('quirkFactor').value;
